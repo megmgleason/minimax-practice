@@ -1,44 +1,50 @@
-# This is a sample Python script.
+from tic_tac_toe.game import Player, Game
+from tic_tac_toe.agents.console_input_agent import ConsoleInputAgent
+from tic_tac_toe.agents.random_agent import RandomAgent
+from tic_tac_toe.agents.smart_agent import SmartAgent
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-# A simple Python3 program to find
-# maximum score that
-# maximizing player can get
-import math
-
-
-def minimax(curDepth, nodeIndex,
-            maxTurn, scores,
-            targetDepth):
-    # base case : targetDepth reached
-    if (curDepth == targetDepth):
-        return scores[nodeIndex]
-
-    if (maxTurn):
-        return max(minimax(curDepth + 1, nodeIndex * 2,
-                           False, scores, targetDepth),
-                   minimax(curDepth + 1, nodeIndex * 2 + 1,
-                           False, scores, targetDepth))
-
-    else:
-        return min(minimax(curDepth + 1, nodeIndex * 2,
-                           True, scores, targetDepth),
-                   minimax(curDepth + 1, nodeIndex * 2 + 1,
-                           True, scores, targetDepth))
+AGENTS = [
+    ("Human", ConsoleInputAgent),
+    ("Random Agent", RandomAgent),
+    ("Smart Agent", SmartAgent)
+]
 
 
-# Driver code
-scores = [3, 5, 2, 9, 12, 5, 23, 23]
+def _pick_agent(player):
+    def _try_pick():
+        try:
+            list_of_agents = "\n".join(
+                map(lambda x: "\t{} - {}".format(x[0], x[1][0]),
+                    enumerate(AGENTS)))
+            agent = int(
+                input("Available agents: \n{}\nPick an agent [0-{}]: ".format(
+                    list_of_agents, len(AGENTS) - 1)))
+            return agent
+        except ValueError:
+            return None
 
-treeDepth = math.log(len(scores), 2)
+    agent = _try_pick()
 
-print("The optimal value is : ", end="")
-print(minimax(0, 0, True, scores, treeDepth))
+    while agent is None:
+        print("Incorrect selection, try again.")
+        agent = _try_pick()
 
-# This code is contributed
-# by rootshadow
+    return AGENTS[agent][1](player)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+def main():
+    print("Choosing player X...")
+    player_x = _pick_agent(Player.X)
+
+    print("Choosing player O...")
+    player_o = _pick_agent(Player.O)
+    play = "y"
+
+    while play == "y":
+        game = Game(player_x, player_o)
+        game.play()
+        play = input("Play again? y/[n]: ")
+
+
+if __name__ == "__main__":
+    main()
